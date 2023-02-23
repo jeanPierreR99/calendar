@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.3.min.js"
+      integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+      crossorigin="anonymous"
+    ></script>
+
+    <title>Document</title>
+    <style>
+      body {
+      }
+      .container {
+        height: 80vh;
+        width: 80%;
+        margin: auto;
+      }
+      #calendar {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>CALENDARIO DE ACTIVIDADES</h2>
+      <form id="form" method="post">
+        <input type="text" name="title" id="title" placeholder="title">
+        <input type="text" name="start" id="start" placeholder="start">
+        <input type="text" name="end" id="end" placeholder="end">
+        <input type="text" name="person" id="person">
+        <input type="color" name="color" id="color">
+        <button>Guardar</button>
+      </form>
+      <div id="calendar"></div>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+
+        var calendarEl = document.getElementById("calendar");
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          selectable: true,
+          // locale: "es",
+          headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
+          },
+          events:"/agendas",
+          eventClick: function (info) {
+            var eventObj = info.event;
+            console.log(eventObj)
+            alert(
+              "titulo: "+eventObj.title,+"desde: "+eventObj.start+"hasta: ",eventObj.end+"por: "+eventObj._def.extendedProps.person);
+          },
+          select: function (info) {
+            var start = "";
+            var end = "";
+
+            start = info.startStr;
+            end = info.endStr;
+
+            days(start, end);
+            // calendar.destroy()
+          },
+        });
+        calendar.render();
+
+        function days(inicio, fin) {
+          console.log("fecha: ", inicio, fin);
+          $('#start').val(inicio);
+          $('#end').val(fin);
+        }
+
+        var form = document.getElementById('form');
+      form.addEventListener('submit', (e)=>{
+        e.preventDefault();
+      var datas = $('#form').serialize();
+        console.log(datas)
+        $.ajax({
+            url:'/addAgendas',
+            type: 'POST',
+            data: datas,
+            success: function(data){
+            }
+        })
+        alert("evento agregado")
+     calendar.refetchEvents();
+      })
+      });
+    </script>
+  </body>
+</html>
